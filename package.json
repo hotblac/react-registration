@@ -1,7 +1,11 @@
 {
   "name": "react-registration",
   "version": "0.1.0",
-  "private": true,
+  "description": "User registration component for React JS",
+  "keywords": ["demo"],
+  "homepage": "https://github.com/hotblac/react-registration",
+  "license": "MIT",
+  "author": "Stuart 'Stevie' Leitch",
   "dependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1",

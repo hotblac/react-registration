@@ -2,14 +2,19 @@
   "name": "react-registration",
   "version": "0.1.0",
   "description": "User registration component for React JS",
-  "keywords": ["demo"],
+  "keywords": [
+    "demo"
+  ],
   "homepage": "https://github.com/hotblac/react-registration",
   "license": "MIT",
   "author": "Stuart 'Stevie' Leitch",
   "dependencies": {
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-test-renderer": "^16.4.1"
   },
   "scripts": {
     "start": "react-scripts start",

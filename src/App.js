@@ -4,6 +4,15 @@ import './App.css';
 import {UserRegistration} from "./UserRegistration";
 
 class App extends Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    handleUserRegistration = (username, password) => {
+        alert('New user registered: ' + username);
+    }
+
     render() {
         return (
             <div className="App">
@@ -14,7 +23,7 @@ class App extends Component {
                 <p className="App-intro">
                     To get started, edit <code>src/App.js</code> and save to reload.
                 </p>
-                <UserRegistration/>
+                <UserRegistration onSubmit={this.handleUserRegistration}/>
             </div>
         );
     }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import 'bulma/css/bulma.css'
 
 export class UserRegistration extends Component {
 
@@ -25,9 +26,20 @@ export class UserRegistration extends Component {
     render() {
         return (
             <div>
-                <input name="username" type={'text'} className={'username'} onChange={this.handleInputChange}/>
-                <input name="password" type={'password'} className={'password'} onChange={this.handleInputChange}/>
-                <button onClick={this.handleSubmit}>Submit</button>
+                <h1 className="title">Create an account</h1>
+                <div className="field">
+                    <label className="label">Username</label>
+                    <div className="control">
+                        <input name="username" type={'text'} className="input username" onChange={this.handleInputChange}/>
+                    </div>
+                </div>
+                <div className="field">
+                    <label className="label">Password</label>
+                    <div className="control">
+                        <input name="password" type={'password'} className="input password" onChange={this.handleInputChange}/>
+                    </div>
+                </div>
+                <button className="button is-primary" onClick={this.handleSubmit}>Submit</button>
             </div>
         );
     }

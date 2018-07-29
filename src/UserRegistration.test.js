@@ -8,6 +8,10 @@ describe ('<UserRegistration/>', () => {
     const password = 'password';
     const onSubmit = jest.fn();
 
+    beforeEach(() => {
+        onSubmit.mockReset();
+    });
+
     it('renders', () => {
         const wrapper = shallow(<UserRegistration/>);
         expect(wrapper).toBeDefined();
@@ -17,13 +21,68 @@ describe ('<UserRegistration/>', () => {
         const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
         const usernameField = wrapper.find('input.username');
         const passwordField = wrapper.find('input.password');
+        const confirmField = wrapper.find('input.confirm');
         const submitButton = wrapper.find('button');
 
         usernameField.simulate('change', stubEvent(usernameField, username));
         passwordField.simulate('change', stubEvent(passwordField, password));
+        confirmField.simulate('change', stubEvent(confirmField, password));
         submitButton.simulate('click');
 
         expect(onSubmit).toBeCalledWith(username, password);
+    });
+
+    it('disables submit when password does not match confirmation', () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        const usernameField = wrapper.find('input.username');
+        const passwordField = wrapper.find('input.password');
+        const confirmField = wrapper.find('input.confirm');
+
+        usernameField.simulate('change', stubEvent(usernameField, username));
+        passwordField.simulate('change', stubEvent(passwordField, password));
+        confirmField.simulate('change', stubEvent(confirmField, 'mismatch'));
+
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeTruthy();
+
+        // Try submitting anyway
+        submitButton.simulate('click');
+        expect(onSubmit).not.toBeCalled();
+    });
+
+    it('enables submit when password matches confirmation', () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        const usernameField = wrapper.find('input.username');
+        const passwordField = wrapper.find('input.password');
+        const confirmField = wrapper.find('input.confirm');
+
+        usernameField.simulate('change', stubEvent(usernameField, username));
+        passwordField.simulate('change', stubEvent(passwordField, password));
+        confirmField.simulate('change', stubEvent(confirmField, password));
+
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeFalsy();
+
+        submitButton.simulate('click');
+        expect(onSubmit).toBeCalled();
+    });
+
+    it('disables submit when password and confirmation are blank', () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        const usernameField = wrapper.find('input.username');
+        const passwordField = wrapper.find('input.password');
+        const confirmField = wrapper.find('input.confirm');
+
+        usernameField.simulate('change', stubEvent(usernameField, username));
+        passwordField.simulate('change', stubEvent(passwordField, ''));
+        confirmField.simulate('change', stubEvent(confirmField, ''));
+
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeTruthy();
+
+        // Try submitting anyway
+        submitButton.simulate('click');
+        expect(onSubmit).not.toBeCalled();
     });
 });
 

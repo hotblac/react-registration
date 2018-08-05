@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import 'bulma/css/bulma.css'
+import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
 
@@ -66,13 +67,13 @@ export class UserRegistration extends Component {
                     <div className="control has-icons-right">
                         <input name="confirm" type="password" className={'input' + (this.state.passwordMatchesConfirm ? '' : ' is-danger')} onChange={this.handleInputChange}/>
                         {!this.state.passwordMatchesConfirm &&
-                            <span className="icon is-small is-right">
+                            <span className="icon is-right tooltip" style={{pointerEvents: 'inherit'}} data-tooltip="Confirmation does not match password">
                                 <FontAwesomeIcon icon={faExclamationCircle}/>
                             </span>
                         }
                     </div>
                 </div>
-                <button className="button is-primary" onClick={this.handleSubmit} disabled={!this.submitEnabled()}>Submit</button>
+                <button className="button is-primary" onClick={this.handleSubmit} disabled={!this.submitEnabled()} >Submit</button>
             </div>
         );
     }

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import 'bulma/css/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
 
 export class UserRegistration extends Component {
 
@@ -9,30 +11,34 @@ export class UserRegistration extends Component {
             username: '',
             password: '',
             confirm: '',
-            submitEnabled: false
+            passwordMatchesConfirm: true
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
+
+    submitEnabled = () => {
+        return this.state.password && this.state.passwordMatchesConfirm;
+    };
 
     handleInputChange = (event) =>  {
         const target = event.target;
 
         // Logic to check passwords match must check input change against existing field value.
-        let submitEnabled = false;
+        let passwordMatchesConfirm = this.state.passwordMatchesConfirm;
         if (target.name === 'password') {
-            submitEnabled = target.value && (target.value === this.state.confirm);
+            passwordMatchesConfirm = target.value && (target.value === this.state.confirm);
         } else if (target.name === 'confirm') {
-            submitEnabled = target.value && (target.value === this.state.password);
+            passwordMatchesConfirm = target.value && (target.value === this.state.password);
         }
 
         this.setState({
             [target.name]: target.value,
-            submitEnabled: submitEnabled
+            passwordMatchesConfirm: passwordMatchesConfirm
         });
     };
 
     handleSubmit = () => {
-        if (this.state.submitEnabled) {
+        if (this.submitEnabled()) {
             this.props.onSubmit(this.state.username, this.state.password);
         } else {
             console.error("Attempt to submit form when form has validation errors");
@@ -43,25 +49,30 @@ export class UserRegistration extends Component {
         return (
             <div>
                 <h1 className="title">Create an account</h1>
-                <div className="field">
+                <div className="field" id="usernameField">
                     <label className="label">Username</label>
                     <div className="control">
-                        <input name="username" type="text" className="input username" onChange={this.handleInputChange}/>
+                        <input name="username" type="text" className="input" onChange={this.handleInputChange}/>
                     </div>
                 </div>
-                <div className="field">
+                <div className="field" id="passwordField">
                     <label className="label">Password</label>
                     <div className="control">
-                        <input name="password" type="password" className="input password" onChange={this.handleInputChange}/>
+                        <input name="password" type="password" className="input" onChange={this.handleInputChange}/>
                     </div>
                 </div>
-                <div className="field">
+                <div className="field" id="confirmField">
                     <label className="label">Confirm Password</label>
-                    <div className="control">
-                        <input name="confirm" type="password" className="input confirm" onChange={this.handleInputChange}/>
+                    <div className="control has-icons-right">
+                        <input name="confirm" type="password" className={'input' + (this.state.passwordMatchesConfirm ? '' : ' is-danger')} onChange={this.handleInputChange}/>
+                        {!this.state.passwordMatchesConfirm &&
+                            <span className="icon is-small is-right">
+                                <FontAwesomeIcon icon={faExclamationCircle}/>
+                            </span>
+                        }
                     </div>
                 </div>
-                <button className="button is-primary" onClick={this.handleSubmit} disabled={!this.state.submitEnabled}>Submit</button>
+                <button className="button is-primary" onClick={this.handleSubmit} disabled={!this.submitEnabled()}>Submit</button>
             </div>
         );
     }

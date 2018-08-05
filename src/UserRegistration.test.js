@@ -67,11 +67,33 @@ describe ('<UserRegistration/>', () => {
         expect(onSubmit).not.toBeCalled();
     });
 
+    it('shows error markers when password does not match confirmation', () => {
+        const wrapper = shallow(<UserRegistration/>);
+        setFieldValues(wrapper, username, password, 'mismatch');
+
+        const inputField = wrapper.find('#confirmField input')
+        const errorIcon = wrapper.find('#confirmField .icon');
+
+        expect(inputField.hasClass('is-danger')).toBe(true);
+        expect(errorIcon.exists()).toBe(true);
+    });
+
+    it('hides error marker when password does matches confirmation', () => {
+        const wrapper = shallow(<UserRegistration/>);
+        setFieldValues(wrapper, username, password, password);
+
+        const inputField = wrapper.find('#confirmField input')
+        const errorIcon = wrapper.find('#confirmField .icon');
+
+        expect(inputField.hasClass('is-danger')).toBe(false);
+        expect(errorIcon.exists()).toBe(false);
+    });
+
 
     function setFieldValues(wrapper, username, password, confirm) {
-        const usernameField = wrapper.find('input.username');
-        const passwordField = wrapper.find('input.password');
-        const confirmField = wrapper.find('input.confirm');
+        const usernameField = wrapper.find('#usernameField input');
+        const passwordField = wrapper.find('#passwordField input');
+        const confirmField = wrapper.find('#confirmField input');
 
         usernameField.simulate('change', stubEvent(usernameField, username));
         passwordField.simulate('change', stubEvent(passwordField, password));

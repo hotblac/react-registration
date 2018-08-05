@@ -25,18 +25,18 @@ describe('isPasswordPwned', () => {
         fetch.mockResponseOnce(apiResponse);
     });
 
-    it('requests pwned passwords by partial hash', () => {
+    it('should request pwned passwords by partial hash', () => {
         isPasswordPwned(password);
         expect(fetch.mock.calls[0][0]).toBe('https://api.pwnedpasswords.com/range/' + expectedHashPrefix);
     });
 
-    it('returns true when password is pwned', async () => {
-        const result = await isPasswordPwned(password);
-        expect(result).toBe(true);
+    it('should return true when password is pwned', () => {
+        const result = isPasswordPwned(password);
+        expect(result).resolves.toBe(true);
     });
 
-    it('returns false when password is not pwned', async () => {
-        const result = await isPasswordPwned(uniquePassword);
-        expect(result).toBe(false);
+    it('should return false when password is not pwned', () => {
+        const result = isPasswordPwned(uniquePassword);
+        expect(result).resolves.toBe(false);
     });
 });

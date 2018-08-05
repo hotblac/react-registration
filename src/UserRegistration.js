@@ -19,7 +19,10 @@ export class UserRegistration extends Component {
     }
 
     submitEnabled = () => {
-        return this.state.password && this.state.passwordMatchesConfirm;
+        return this.state.username &&
+            this.state.password &&
+            this.state.passwordMatchesConfirm &&
+            !this.state.passwordIsPwned;
     };
 
     checkForPwnedPassword = (password) => {

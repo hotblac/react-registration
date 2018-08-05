@@ -3,62 +3,23 @@ import { shallow } from 'enzyme';
 import {UserRegistration} from "./UserRegistration";
 import * as pwn from "./Pwnedpasswords.api";
 
-describe ('<UserRegistration/>', () => {
+const username = 'username';
+const goodPassword = 'password';
+const pwnedPassword = "pwned";
 
-    const username = 'username';
-    const goodPassword = 'password';
-    const pwnedPassword = "pwned";
+// Mock behaviours
+pwn.isPasswordPwned = jest.fn((pwd) => {
+    return Promise.resolve(pwd !== goodPassword)
+});
+const onSubmit = jest.fn();
 
-    pwn.isPasswordPwned = jest.fn((pwd) => {
-        return Promise.resolve(pwd !== goodPassword)
-    });
-    const onSubmit = jest.fn();
+beforeEach(() => {
+    onSubmit.mockReset();
+});
 
-    beforeEach(() => {
-        onSubmit.mockReset();
-    });
+describe('password field', () =>  {
 
-
-    it('renders', () => {
-        const wrapper = shallow(<UserRegistration/>);
-        expect(wrapper).toBeDefined();
-    });
-
-
-    it('notifies caller of username and password', () => {
-        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
-        setFieldValues(wrapper, username, goodPassword, goodPassword);
-
-        const submitButton = wrapper.find('button');
-        submitButton.simulate('click');
-
-        expect(onSubmit).toBeCalledWith(username, goodPassword);
-    });
-
-
-    it('shows error markers when password does not match confirmation', () => {
-        const wrapper = shallow(<UserRegistration/>);
-        setFieldValues(wrapper, username, goodPassword, 'mismatch');
-
-        const inputField = wrapper.find('#confirmField input')
-        const errorIcon = wrapper.find('#confirmField .icon');
-
-        expect(inputField.hasClass('is-danger')).toBe(true);
-        expect(errorIcon.exists()).toBe(true);
-    });
-
-    it('hides error marker when password does matches confirmation', () => {
-        const wrapper = shallow(<UserRegistration/>);
-        setFieldValues(wrapper, username, goodPassword, goodPassword);
-
-        const inputField = wrapper.find('#confirmField input')
-        const errorIcon = wrapper.find('#confirmField .icon');
-
-        expect(inputField.hasClass('is-danger')).toBe(false);
-        expect(errorIcon.exists()).toBe(false);
-    });
-
-    it('shows error marker when password is pwned', async () => {
+    it('should show warnings when password is pwned', async () => {
         const wrapper = shallow(<UserRegistration/>);
         await setFieldValuesAndUpdate(wrapper, username, pwnedPassword, pwnedPassword);
 
@@ -69,7 +30,7 @@ describe ('<UserRegistration/>', () => {
         expect(errorIcon.exists()).toBe(true);
     });
 
-    it ('hides error marker when password is blank', () => {
+    it ('should hide warnings when password is blank', () => {
         const wrapper = shallow(<UserRegistration/>);
         setFieldValues(wrapper, username, '', '');
 
@@ -80,7 +41,7 @@ describe ('<UserRegistration/>', () => {
         expect(errorIcon.exists()).toBe(false);
     });
 
-    it ('hides error marker when password is not pwned', async () => {
+    it ('should hide warnings when password is not pwned', async () => {
         const wrapper = shallow(<UserRegistration/>);
         await setFieldValuesAndUpdate(wrapper, username, goodPassword, goodPassword);
 
@@ -91,8 +52,61 @@ describe ('<UserRegistration/>', () => {
         expect(errorIcon.exists()).toBe(false);
     });
 
+});
 
-    it('disables submit when password does not match confirmation', () => {
+describe('password confirmation field', () =>  {
+
+    it('should show warnings when password does not match confirmation', () => {
+        const wrapper = shallow(<UserRegistration/>);
+        setFieldValues(wrapper, username, goodPassword, 'mismatch');
+
+        const inputField = wrapper.find('#confirmField input')
+        const errorIcon = wrapper.find('#confirmField .icon');
+
+        expect(inputField.hasClass('is-danger')).toBe(true);
+        expect(errorIcon.exists()).toBe(true);
+    });
+
+    it('should hide warnings when password does matches confirmation', () => {
+        const wrapper = shallow(<UserRegistration/>);
+        setFieldValues(wrapper, username, goodPassword, goodPassword);
+
+        const inputField = wrapper.find('#confirmField input')
+        const errorIcon = wrapper.find('#confirmField .icon');
+
+        expect(inputField.hasClass('is-danger')).toBe(false);
+        expect(errorIcon.exists()).toBe(false);
+    });
+
+});
+
+describe('submit button', () =>  {
+
+    it ('should disable submit when username is blank', () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        setFieldValues(wrapper, '', goodPassword, goodPassword);
+
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeTruthy();
+
+        // Try submitting anyway
+        submitButton.simulate('click');
+        expect(onSubmit).not.toBeCalled();
+    });
+
+    it('should disable submit when password and confirmation are blank', () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        setFieldValues(wrapper, username, '', '');
+
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeTruthy();
+
+        // Try submitting anyway
+        submitButton.simulate('click');
+        expect(onSubmit).not.toBeCalled();
+    });
+
+    it('should disable submit when password does not match confirmation', () => {
         const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
         setFieldValues(wrapper, username, goodPassword, 'mismatch');
 
@@ -104,8 +118,19 @@ describe ('<UserRegistration/>', () => {
         expect(onSubmit).not.toBeCalled();
     });
 
+    it('should disable submit when password is pwned', async () => {
+        const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
+        await setFieldValuesAndUpdate(wrapper, username, pwnedPassword, pwnedPassword);
 
-    it('enables submit when password matches confirmation', () => {
+        const submitButton = wrapper.find('button');
+        expect(submitButton.prop('disabled')).toBeTruthy();
+
+        // Try submitting anyway
+        submitButton.simulate('click');
+        expect(onSubmit).not.toBeCalled();
+    });
+
+    it('should enable submit when all fields are valid', () => {
         const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
         setFieldValues(wrapper, username, goodPassword, goodPassword);
 
@@ -116,36 +141,38 @@ describe ('<UserRegistration/>', () => {
         expect(onSubmit).toBeCalled();
     });
 
+});
 
-    it('disables submit when password and confirmation are blank', () => {
+describe ('callbacks', () => {
+
+    it('should notify caller of username and password', () => {
         const wrapper = shallow(<UserRegistration onSubmit={onSubmit}/>);
-        setFieldValues(wrapper, username, '', '');
+        setFieldValues(wrapper, username, goodPassword, goodPassword);
 
         const submitButton = wrapper.find('button');
-        expect(submitButton.prop('disabled')).toBeTruthy();
-
-        // Try submitting anyway
         submitButton.simulate('click');
-        expect(onSubmit).not.toBeCalled();
+
+        expect(onSubmit).toBeCalledWith(username, goodPassword);
     });
 
-    function setFieldValues(wrapper, username, password, confirm) {
-        const usernameField = wrapper.find('#usernameField input');
-        const passwordField = wrapper.find('#passwordField input');
-        const confirmField = wrapper.find('#confirmField input');
-
-        usernameField.simulate('change', stubEvent(usernameField, username));
-        passwordField.simulate('change', stubEvent(passwordField, password));
-        confirmField.simulate('change', stubEvent(confirmField, confirm));
-    }
-
-
-    async function setFieldValuesAndUpdate(wrapper, username, password, confirm) {
-        setFieldValues(wrapper, username, password, confirm);
-        await flushPromises();
-        wrapper.update();
-    }
 });
+
+function setFieldValues(wrapper, username, password, confirm) {
+    const usernameField = wrapper.find('#usernameField input');
+    const passwordField = wrapper.find('#passwordField input');
+    const confirmField = wrapper.find('#confirmField input');
+
+    usernameField.simulate('change', stubEvent(usernameField, username));
+    passwordField.simulate('change', stubEvent(passwordField, password));
+    confirmField.simulate('change', stubEvent(confirmField, confirm));
+}
+
+
+async function setFieldValuesAndUpdate(wrapper, username, password, confirm) {
+    setFieldValues(wrapper, username, password, confirm);
+    await flushPromises();
+    wrapper.update();
+}
 
 /**
  * Stubbed event object suitable for event simulatrion.

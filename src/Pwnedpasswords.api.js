@@ -6,7 +6,7 @@ const sha1 = require('sha1');
  * @returns
  * @link https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange
  */
-export const isPasswordPwned = (password) => {
+export function isPasswordPwned(password) {
 
     // Send  the first 5 digits of the hash to API
     const hash = sha1(password);
@@ -18,4 +18,4 @@ export const isPasswordPwned = (password) => {
         .then(response => response.split(/\r?\n/)) // Make an array of results
         .then(lines => lines.map(line => line.split(':')[0].toLowerCase())) // Hash suffix is string up to colon
         .then(lines => lines.includes(suffix.toLowerCase()));
-};
+}

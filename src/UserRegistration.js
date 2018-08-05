@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import * as pwn from "./Pwnedpasswords.api";
 import 'bulma/css/bulma.css'
 import 'bulma-tooltip/dist/css/bulma-tooltip.min.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,13 +13,18 @@ export class UserRegistration extends Component {
             username: '',
             password: '',
             confirm: '',
-            passwordMatchesConfirm: true
+            passwordMatchesConfirm: true,
+            passwordIsPwned: false
         };
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     submitEnabled = () => {
         return this.state.password && this.state.passwordMatchesConfirm;
+    };
+
+    checkForPwnedPassword = (password) => {
+        pwn.isPasswordPwned(password)
+            .then(result => this.setState({passwordIsPwned: result}));
     };
 
     handleInputChange = (event) =>  {
@@ -28,6 +34,7 @@ export class UserRegistration extends Component {
         let passwordMatchesConfirm = this.state.passwordMatchesConfirm;
         if (target.name === 'password') {
             passwordMatchesConfirm = target.value && (target.value === this.state.confirm);
+            this.checkForPwnedPassword(target.value);
         } else if (target.name === 'confirm') {
             passwordMatchesConfirm = target.value && (target.value === this.state.password);
         }
@@ -58,8 +65,13 @@ export class UserRegistration extends Component {
                 </div>
                 <div className="field" id="passwordField">
                     <label className="label">Password</label>
-                    <div className="control">
-                        <input name="password" type="password" className="input" onChange={this.handleInputChange}/>
+                    <div className="control has-icons-right">
+                        <input name="password" type="password" className={'input' + (this.state.passwordIsPwned ? ' is-danger' : '')} onChange={this.handleInputChange}/>
+                        {this.state.passwordIsPwned &&
+                        <span className="icon is-right tooltip" style={{pointerEvents: 'inherit'}} data-tooltip="Password is pwned">
+                                <FontAwesomeIcon icon={faExclamationCircle}/>
+                            </span>
+                        }
                     </div>
                 </div>
                 <div className="field" id="confirmField">
